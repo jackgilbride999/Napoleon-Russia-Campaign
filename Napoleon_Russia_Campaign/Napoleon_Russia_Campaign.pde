@@ -2,8 +2,13 @@ DataType1[] dataGroup1;
 DataType2[] dataGroup2;
 DataType3[] dataGroup3;
 
+void settings(){
+  final int width = displayWidth/4*3;
+  final int height = displayHeight/4*3;
+  size(width, height);
+}
+
 void setup(){
-  size(800, 800);
 
   Table table1, table2, table3;
   table1 = loadTable("../data/minard-data-1.csv", "header");
@@ -35,7 +40,25 @@ void setup(){
 }
 
 void draw(){
+  pushMatrix();
+  // flip the y axis
+  scale(1, -1);
+  translate(0, -height);
   
+  pushMatrix();
+  scale(width/20);
+  translate(-20, -50);
+  for(int i=0; i<dataGroup3.length-1; i++){
+    strokeWeight(0.000001 * dataGroup3[i].surv);
+    if(dataGroup3[i].dir == 'A'){
+       stroke(255, 0, 0);
+    } else {
+       stroke(0, 255, 0); 
+    }
+    line(dataGroup3[i].lonp, dataGroup3[i].latp, dataGroup3[i+1].lonp, dataGroup3[i+1].latp);
+  }
+  popMatrix();  
+  popMatrix();
 }
 
 class DataType1 {
