@@ -1,15 +1,18 @@
 DataType1[] dataGroup1;
 DataType2[] dataGroup2;
 DataType3[] dataGroup3;
+PFont font;
 
 void settings(){
-  final int width = displayWidth/4*3;
-  final int height = displayHeight/4*3;
+  final int width = displayWidth/6*5;
+  final int height = displayHeight/6*5;
   size(width, height);
 }
 
 void setup(){
 
+  font = createFont("ProcessingSansPro-Semibold-15.vlw", 14);
+  
   Table table1, table2, table3;
   table1 = loadTable("../data/minard-data-1.csv", "header");
   table2 = loadTable("../data/minard-data-2.csv", "header");
@@ -40,16 +43,27 @@ void setup(){
 }
 
 void draw(){
+  fill(255,255,255);
+  rect(0,0,width,height);
+  drawDataGroup2();
+  drawDataGroup3();
+  drawDataGroup1();
+}
+
+void drawDataGroup3(){
   pushMatrix();
   // flip the y axis so we can work with the lattitude, which increases upwards, while the y axis traditionally increases downwards 
   scale(1, -1);
   translate(0, -height);
   
   pushMatrix();
+  // scale and translate the points to better fit on the screen
   scale(width/20);
   translate(-20, -50);
+  
+  
   for(int i=0; i<dataGroup3.length-1; i++){
-    strokeWeight(0.000001 * dataGroup3[i].surv);
+    strokeWeight(0.000002 * dataGroup3[i].surv);
     if(dataGroup3[i].dir == 'A'){
        stroke(255, 0, 0);
     } else {
@@ -60,18 +74,30 @@ void draw(){
   
   popMatrix();
   popMatrix();  
+}
 
-  
-  // 
+void drawDataGroup1(){
+  // we can't flip the y axis and apply the general transformations like in drawDataGroup3(), as this messes up the text (flips it and scales it)
+  // therefore we manually calculate the x and y of the points using the same mathematics of these transformations
   for(int j=0; j<dataGroup1.length; j++){
     float x = (dataGroup1[j].lonc - 20) * (width/20);
     float y = (dataGroup1[j].latc - 50) * (width/20);
     y = -(y - height);
     
     circle(x, y, 10);
-    text(dataGroup1[j].city,x, y); 
-  }
-  
+    textFont(font);
+    fill(0, 0, 0);
+    text(dataGroup1[j].city, x + 5, y); 
+  }  
+}
+
+void drawDataGroup2(){
+     stroke(0,0,0);
+     strokeWeight(1);
+    for(int k=0; k<dataGroup2.length; k++){
+      float x = (dataGroup2[k].lont - 20) * (width/20);
+      line(x, 0, x, height);
+    }
 }
 
 class DataType1 {
