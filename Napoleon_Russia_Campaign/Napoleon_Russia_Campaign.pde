@@ -1,4 +1,6 @@
-
+DataType1[] dataGroup1;
+DataType2[] dataGroup2;
+DataType3[] dataGroup3;
 
 void setup(){
   size(800, 800);
@@ -10,18 +12,30 @@ void setup(){
 
   int N;
   N = table1.getRowCount();
-  DataType1[] dataGroup1 = new DataType1[N];
+  dataGroup1 = new DataType1[N];
   for(int i=0; i<N; i++) {
     TableRow row = table1.getRow(i);
     dataGroup1[i] = new DataType1(row.getFloat("LONC"), row.getFloat("LATC"), row.getString("CITY"));
   }
   
   N = table2.getRowCount();
-  DataType2[] dataGroup2 = new DataType2[N];
+  dataGroup2 = new DataType2[N];
   for(int i=0; i<N; i++) {
     TableRow row = table2.getRow(i);
     dataGroup2[i] = new DataType2(row.getFloat("LONT"), row.getInt("TEMP"), row.getInt("DAYS"), row.getString("MON"), row.getInt("DAY"));
   }
+  
+    
+  N = table3.getRowCount();
+  dataGroup3 = new DataType3[N];
+  for(int i=0; i<N; i++) {
+    TableRow row = table3.getRow(i);
+    dataGroup3[i] = new DataType3(row.getFloat("LONP"), row.getFloat("LATP"), row.getInt("SURV"), row.getString("DIR").charAt(0), row.getInt("DIV"));
+  }
+}
+
+void draw(){
+  
 }
 
 class DataType1 {
@@ -58,4 +72,12 @@ class DataType3 {
   int surv;
   char dir;
   int div;
+  
+  DataType3(float lonp, float latp, int surv, char dir, int div){
+     this.lonp = lonp;
+     this.latp = latp;
+     this.surv = surv;
+     this.dir = dir;
+     this.div = div;
+  }
 }
