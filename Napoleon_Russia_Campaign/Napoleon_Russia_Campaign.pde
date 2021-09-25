@@ -2,6 +2,7 @@ DataType1[] dataGroup1;
 DataType2[] dataGroup2;
 DataType3[] dataGroup3;
 PFont font;
+PImage image;
 
 void settings(){
   final int width = displayWidth/6*5;
@@ -12,6 +13,7 @@ void settings(){
 void setup(){
 
   font = createFont("ProcessingSansPro-Semibold-15.vlw", 14);
+  image = loadImage("russia_1812.jpg");
   
   Table table1, table2, table3;
   table1 = loadTable("../data/minard-data-1.csv", "header");
@@ -45,12 +47,16 @@ void setup(){
 void draw(){
   fill(255,255,255);
   rect(0,0,width,height);
-  drawDataGroup2();
-  drawDataGroup3();
-  drawDataGroup1();
+ // image(image, 0,0);
+  float scale = (width/20);
+  float translateX = -20;
+  float translateY = -50;
+  drawDataGroup2(scale, translateX, translateY);
+  drawDataGroup3(scale, translateX, translateY);
+  drawDataGroup1(scale, translateX, translateY);
 }
 
-void drawDataGroup3(){
+void drawDataGroup3(float scale, float translateX, float translateY){
   pushMatrix();
   // flip the y axis so we can work with the lattitude, which increases upwards, while the y axis traditionally increases downwards 
   scale(1, -1);
@@ -58,8 +64,8 @@ void drawDataGroup3(){
   
   pushMatrix();
   // scale and translate the points to better fit on the screen
-  scale(width/20);
-  translate(-20, -50);
+  scale(scale);
+  translate(translateX, translateY);
   
   
   for(int i=0; i<dataGroup3.length-1; i++){
@@ -76,28 +82,34 @@ void drawDataGroup3(){
   popMatrix();  
 }
 
-void drawDataGroup1(){
+void drawDataGroup1(float scale, float translateX, float translateY){
   // we can't flip the y axis and apply the general transformations like in drawDataGroup3(), as this messes up the text (flips it and scales it)
   // therefore we manually calculate the x and y of the points using the same mathematics of these transformations
   for(int j=0; j<dataGroup1.length; j++){
-    float x = (dataGroup1[j].lonc - 20) * (width/20);
-    float y = (dataGroup1[j].latc - 50) * (width/20);
+    float x = (dataGroup1[j].lonc + translateX) * (scale);
+    float y = (dataGroup1[j].latc + translateY) * (scale);
     y = -(y - height);
     
+    fill(0, 0, 0);
     circle(x, y, 10);
     textFont(font);
-    fill(0, 0, 0);
-    text(dataGroup1[j].city, x + 5, y); 
+    textAlign(CENTER);
+    text(dataGroup1[j].city, x, y + 15); 
   }  
 }
 
-void drawDataGroup2(){
+void drawDataGroup2(float scale, float translateX, float translateY){
      stroke(0,0,0);
+      fill(0, 0, 0);
      strokeWeight(1);
     for(int k=0; k<dataGroup2.length; k++){
-      float x = (dataGroup2[k].lont - 20) * (width/20);
+      float x = (dataGroup2[k].lont + translateX) * (scale);
       line(x, 0, x, height);
+      textFont(font);
+      textAlign(CENTER);
+      text(dataGroup2[k].temp + ", " + dataGroup2[k].day + " " + dataGroup2[k].mon, x, height - 200);
     }
+    
 }
 
 class DataType1 {
