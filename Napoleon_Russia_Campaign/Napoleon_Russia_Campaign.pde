@@ -41,7 +41,7 @@ void setup(){
 
 void draw(){
   pushMatrix();
-  // flip the y axis
+  // flip the y axis so we can work with the lattitude, which increases upwards, while the y axis traditionally increases downwards 
   scale(1, -1);
   translate(0, -height);
   
@@ -57,8 +57,21 @@ void draw(){
     }
     line(dataGroup3[i].lonp, dataGroup3[i].latp, dataGroup3[i+1].lonp, dataGroup3[i+1].latp);
   }
-  popMatrix();  
+  
   popMatrix();
+  popMatrix();  
+
+  
+  // 
+  for(int j=0; j<dataGroup1.length; j++){
+    float x = (dataGroup1[j].lonc - 20) * (width/20);
+    float y = (dataGroup1[j].latc - 50) * (width/20);
+    y = -(y - height);
+    
+    circle(x, y, 10);
+    text(dataGroup1[j].city,x, y); 
+  }
+  
 }
 
 class DataType1 {
