@@ -1,6 +1,7 @@
 DataType1[] dataGroup1;
 DataType2[] dataGroup2;
 DataType3[] dataGroup3;
+DataType3[] retreat;
 PFont font;
 PImage image;
 int maxTemp, minTemp;
@@ -51,9 +52,15 @@ void setup() {
 
   N = table3.getRowCount();
   dataGroup3 = new DataType3[N];
+  retreat = new DataType3[26];
+  int j = 0;
   for (int i=0; i<N; i++) {
     TableRow row = table3.getRow(i);
     dataGroup3[i] = new DataType3(row.getFloat("LONP"), row.getFloat("LATP"), row.getInt("SURV"), row.getString("DIR").charAt(0), row.getInt("DIV"));
+    if(row.getString("DIR").equals("R")){
+        retreat[j] = new DataType3(row.getFloat("LONP"), row.getFloat("LATP"), row.getInt("SURV"), row.getString("DIR").charAt(0), row.getInt("DIV"));
+        j++;
+    }
   }
 }
 
@@ -68,14 +75,18 @@ void draw() {
   fill(0,0,0);
   text("FIGURATIVE MAP of the successive losses of men of the \nFrench Army in the RUSSIAN CAMPAIGN OF 1812-1813", width/2, height/10);
   textSize(20);
-  
-  text("GRAPHIC TABLE of the temperature in degres of Réaumur thermometer", minTempX + (maxTempX-minTempX)/2, maxTempY - (minTempY-maxTempY)/4);
 
   float translateX = -21;
   float translateY = -51;
-  drawDataGroup2(scaleX, scaleY, translateX, translateY);
   drawDataGroup3(scaleX, scaleY, translateX, translateY);
   drawDataGroup1(scaleX, scaleY, translateX, translateY);
+  drawDataGroup2(scaleX, scaleY, translateX, translateY);
+  
+  textSize(20);
+  fill(255,255,255);
+  rect(minTempX + (maxTempX-minTempX)/5, maxTempY - (minTempY-maxTempY)/2.5, (maxTempX-minTempX)*3/5, (minTempY-maxTempY)/5);
+  fill(0,0,0);
+  text("GRAPHIC TABLE of the temperature in degres of Celcius thermometer", minTempX + (maxTempX-minTempX)/2, maxTempY - (minTempY-maxTempY)/4);
 }
 
 void drawDataGroup3(float scaleX, float scaleY, float translateX, float translateY) {
@@ -109,27 +120,26 @@ void drawDataGroup3(float scaleX, float scaleY, float translateX, float translat
       float slope = (dataGroup3[i+1].latp - dataGroup3[i].latp)/(dataGroup3[i+1].lonp - dataGroup3[i].lonp);
       float angle = atan(slope);
       if (dataGroup3[i].dir == 'A') {
-        yMid -=(0.0002 * dataGroup3[i].surv);
+        yMid -=15;
       } else {
-        yMid +=(0.0002 * dataGroup3[i].surv);
+        yMid +=5;
       }
       
       pushMatrix();
       translate(xMid, yMid);
 
-      rotate(-angle);
+      //rotate(-angle);
       
       fill(0,0,0);
       textSize(12);
-      text(i%2==0 ? "" + dataGroup3[i].surv : "", 0, 0);
+      text(i%4==0 ? "" + dataGroup3[i].surv : "", 0, 0);
       popMatrix();
    }
   }
 }
 
 void drawDataGroup1(float scaleX, float scaleY, float translateX, float translateY) {
-  // we can't flip the y axis and apply the general transformations like in drawDataGroup3(), as this messes up the text (flips it and scales it)
-  // therefore we manually calculate the x and y of the points using the same mathematics of these transformations
+
   for (int j=0; j<dataGroup1.length; j++) {
     float x = (dataGroup1[j].lonc + translateX) * (scaleX);
     float y = (dataGroup1[j].latc + translateY) * (scaleY);
@@ -156,6 +166,8 @@ void drawDataGroup2(float scaleX, float scaleY, float translateX, float translat
     text((-i) + "°C", maxTempX + width / 60, y);
   }
   stroke(0, 0, 0);
+  textFont(font);
+
 
   float x0 = (dataGroup2[0].lont + translateX) * (scaleX);
   float y0 = maxTempY + (abs(dataGroup2[0].temp)/tempRange*((minTempY-maxTempY)));
@@ -163,20 +175,32 @@ void drawDataGroup2(float scaleX, float scaleY, float translateX, float translat
   circle(x0, y0, 5);
   textLeading(20);
   text(dataGroup2[0].temp + "\n" + dataGroup2[0].day + " " + dataGroup2[0].mon, x0, textY);
-
+   
+  stroke(150, 150, 150);
+  float intersection0 = getRetreatLatitude(dataGroup2[0].lont);
+  intersection0 = (intersection0 + translateY) * (scaleY);
+  intersection0 = -(intersection0 - height);
+  line(x0, y0, x0, intersection0);
+  stroke(0,0,0);
 
   for (int k=1; k<dataGroup2.length; k++) {
     x0 = (dataGroup2[k-1].lont + translateX) * (scaleX);
     float x1 = (dataGroup2[k].lont + translateX) * (scaleX);
-
     // this calculation works because the maxTemp is 0
     y0 = maxTempY + (abs(dataGroup2[k-1].temp)/tempRange*((minTempY-maxTempY)));
     float y1 = maxTempY + (abs(dataGroup2[k].temp)/tempRange*((minTempY-maxTempY)));
 
+    stroke(150, 150, 150);
+    float intersection = getRetreatLatitude(dataGroup2[k].lont);
+    intersection = (intersection + translateY) * (scaleY);
+    intersection = -(intersection - height);
+    line(x1, y1, x1, intersection);
+    stroke(0,0,0);
 
     strokeWeight(5);
     circle(x1, y1, 5);
     line(x0, y0, x1, y1);
+    strokeWeight(1);
 
     textFont(font);
     textAlign(CENTER);
@@ -184,6 +208,31 @@ void drawDataGroup2(float scaleX, float scaleY, float translateX, float translat
     textLeading(20);
     text(dataGroup2[k].temp + "°" + (boolean(dataGroup2[k].day) ? "\n" + dataGroup2[k].day + " " + dataGroup2[k].mon : ""), x1, textY);
   }
+}
+
+float getRetreatLatitude(float longitude)
+{
+  boolean done = false;
+  float latitude = -1.0;
+  for (int i = 0; done == false && i < retreat.length - 1; i++){
+     float x1 = retreat[i].lonp;
+     float y1 = retreat[i].latp;
+     float x2 = retreat[i+1].lonp;
+     float y2 = retreat[i+1].latp;
+     if ((x2 - x1) < 0){
+       x1 = x2;
+       y1 = y2;
+       x2 = retreat[i].lonp;
+       y2 = retreat[i].latp;
+     }
+     
+     if(longitude <= x2 && longitude >= x1){
+        float m = (y2 - y1) / (x2 - x1);
+        latitude = m * (longitude - x1) + y1;
+        done = true;
+     }
+  }
+ return latitude; 
 }
 
 class DataType1 {
