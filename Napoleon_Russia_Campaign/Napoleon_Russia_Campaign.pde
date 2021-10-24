@@ -63,6 +63,13 @@ void draw() {
   // image(image, 0,0);
   float scaleX = (width/18);
   float scaleY = (width/12);
+  
+  textSize(30);
+  fill(0,0,0);
+  text("FIGURATIVE MAP of the successive losses of men of the \nFrench Army in the RUSSIAN CAMPAIGN OF 1812-1813", width/2, height/10);
+  textSize(20);
+  
+  text("GRAPHIC TABLE of the temperature in degres of Réaumur thermometer", minTempX + (maxTempX-minTempX)/2, maxTempY - (minTempY-maxTempY)/4);
 
   float translateX = -21;
   float translateY = -51;
@@ -89,6 +96,34 @@ void drawDataGroup3(float scaleX, float scaleY, float translateX, float translat
       y2 = -(y2 - height);
       line(x1,y1,x2,y2);
     }
+  }
+  
+  for (int i=0; i<dataGroup3.length-1; i++) {
+    
+   if (dataGroup3[i].div == dataGroup3[i+1].div) {
+
+      float xMid = ((dataGroup3[i].lonp+dataGroup3[i+1].lonp)/2 + translateX) * scaleX;
+      float yMid = ((dataGroup3[i].latp+dataGroup3[i+1].latp)/2 + translateY) * scaleY;
+      yMid = -(yMid - height);
+      
+      float slope = (dataGroup3[i+1].latp - dataGroup3[i].latp)/(dataGroup3[i+1].lonp - dataGroup3[i].lonp);
+      float angle = atan(slope);
+      if (dataGroup3[i].dir == 'A') {
+        yMid -=(0.0002 * dataGroup3[i].surv);
+      } else {
+        yMid +=(0.0002 * dataGroup3[i].surv);
+      }
+      
+      pushMatrix();
+      translate(xMid, yMid);
+
+      rotate(-angle);
+      
+      fill(0,0,0);
+      textSize(12);
+      text(i%2==0 ? "" + dataGroup3[i].surv : "", 0, 0);
+      popMatrix();
+   }
   }
 }
 
