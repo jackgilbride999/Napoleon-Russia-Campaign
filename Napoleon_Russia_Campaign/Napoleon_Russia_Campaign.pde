@@ -72,30 +72,24 @@ void draw() {
 }
 
 void drawDataGroup3(float scaleX, float scaleY, float translateX, float translateY) {
-  pushMatrix();
-  // flip the y axis so we can work with the lattitude, which increases upwards, while the y axis traditionally increases downwards
-  scale(1, -1);
-  translate(0, -height);
-
-  pushMatrix();
-  // scale and translate the points to better fit on the screen
-  scale(scaleX, scaleY);
-  translate(translateX, translateY);
-
+ 
   for (int i=0; i<dataGroup3.length-1; i++) {
-    strokeWeight(0.000002 * dataGroup3[i].surv);
+    strokeWeight(0.0002 * dataGroup3[i].surv);
     if (dataGroup3[i].dir == 'A') {
       stroke(255, 100, 0);
     } else {
       stroke(150, 150, 150);
     }
     if (dataGroup3[i].div == dataGroup3[i+1].div) {
-      line(dataGroup3[i].lonp, dataGroup3[i].latp, dataGroup3[i+1].lonp, dataGroup3[i+1].latp);
+      float x1 = (dataGroup3[i].lonp + translateX) * (scaleX);
+      float y1 = (dataGroup3[i].latp + translateY) * (scaleY);
+      y1 = -(y1 - height);
+      float x2 = (dataGroup3[i+1].lonp + translateX) * (scaleX);
+      float y2 = (dataGroup3[i+1].latp + translateY) * (scaleY);
+      y2 = -(y2 - height);
+      line(x1,y1,x2,y2);
     }
   }
-
-  popMatrix();
-  popMatrix();
 }
 
 void drawDataGroup1(float scaleX, float scaleY, float translateX, float translateY) {
